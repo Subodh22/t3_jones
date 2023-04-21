@@ -8,9 +8,9 @@ import type{RouterOutputs } from "y/utils/api";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import Image from "next/image";
-import { LoadingPage } from "y/components/loading";
+import { LoadingPage, LoadingSpinner } from "y/components/loading";
 import { useState } from "react";
-
+import {toast} from "react-hot-toast";
 dayjs.extend(relativeTime);
 
 const CreatePostWizard=()=>
@@ -22,7 +22,17 @@ const CreatePostWizard=()=>
         {
             setInput("");
             void ctx.posts.getAll.invalidate();
-        }}
+        },
+          onError:(e)=>
+          {
+           const errorMessage = e.data?.zodError?.fieldErrors.content;
+           if(errorMessage && errorMessage[0]){
+            toast.error(errorMessage[0]!)
+           }else{
+            toast.error("Failed to post! Try again later");
+           }
+          }
+      }
       );
       const [input,setInput]=useState("")
 
@@ -32,13 +42,31 @@ const CreatePostWizard=()=>
 
       return <div className="flex w-full gap-3 " >
         <Image width={56} height={56} src={user.profileImageUrl} alt="Profile Image" className=" rounded-full" />
-        <input placeholder="Type something" className="bg-transparent grow outline-none " type="text" value={input} disabled={isPosting} onChange={(e)=>{setInput(e.target.value)}}/>
+        <input placeholder="Type something" className="bg-transparent grow outline-none " type="text" 
+        value={input} 
+        disabled={isPosting} 
+        onChange={(e)=>{setInput(e.target.value)}}
+        onKeyDown={(e)=>{
+          if(e.key==="Enter"){
+            e.preventDefault();
+            if(input!==""){
+              mutate({content:input});
+            }
+
+          }
+        }}
+        />
         
         <button onClick={()=>
           
           mutate({content:input})
       
-          } >Post</button>
+          } disabled={isPosting} >Post</button>
+
+        {isPosting && 
+        <div className="flex justify-center items-center"> 
+        <LoadingSpinner/> </div>
+        }
       </div>
     }
   
