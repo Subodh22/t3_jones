@@ -13,6 +13,7 @@ import { useState } from "react";
 import {toast} from "react-hot-toast";
 import Link from "next/link";
 import { PageLayout } from "y/components/layout";
+import { PostView } from "y/components/postView";
 dayjs.extend(relativeTime);
 
 const CreatePostWizard=()=>
@@ -72,7 +73,7 @@ const CreatePostWizard=()=>
       </div>
     }
   
-type PostWithUser = RouterOutputs["posts"]["getAll"][number];
+ 
 
 const Feed =()=>{
   const {data,isLoading:postsLoading} = api.posts.getAll.useQuery(); 
@@ -88,20 +89,7 @@ const Feed =()=>{
   )
 
 }
-const PostView =(props:PostWithUser)=>{
-  const {post,author}=props
-  return <div className=" flex p-8 border-b border-slate-400 gap-3" key={post.id} > 
-    <Image src={author.profileImageUrl} className=" rounded-full" alt={`@${author.username}'s profile picture`} width={56} height={56} />
-    <div className="flex flex-col">
-    <div className="flex text-slate-300 gap-1">
-      <Link href={`@${author.username}`}> <span>{`@${author.username}`}</span></Link>
-      <Link href={`/post/${post.id}`}> <span>{`· ${dayjs(post.createdAt).fromNow()}`}</span></Link>
-    </div>
-    <span> {post.Content}</span>
-    </div>
-   
-   </div>
-}
+
 const Home: NextPage = () => {
      
   const { isLoaded:userLoaded,isSignedIn} = useUser();
